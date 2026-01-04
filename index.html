@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Profissional de Adubação NPK | Hortaliças</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo-icon">🌱</div>
+                <h1>Calculadora de Adubação NPK</h1>
+                <p>Profissional para Hortaliças</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="input-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-login">Entrar</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Aplicativo Principal (oculto até login) -->
+    <div id="appScreen" class="app-container hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <span class="header-icon">🌱</span>
+                    <h1>Calculadora de Adubação NPK</h1>
+                </div>
+                <button id="logoutBtn" class="btn-logout" title="Sair">
+                    <span>🚪</span> Sair
+                </button>
+            </div>
+        </header>
+
+        <!-- Navegação por Abas -->
+        <nav class="tabs-navigation">
+            <button class="tab-button active" onclick="showTab('calculadora')">
+                🧮 Calculadora
+            </button>
+            <button class="tab-button" onclick="showTab('tratos')">
+                📚 Tratos Culturais
+            </button>
+            <button class="tab-button" onclick="showTab('ajuda')">
+                ℹ️ Como Usar
+            </button>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <!-- Aba Calculadora -->
+            <div id="tab-calculadora" class="tab-content active">
+            <!-- Card de Seleção -->
+            <div class="card selection-card">
+                <h2 class="card-title">📋 Configuração do Cálculo</h2>
+                
+                <div class="form-grid">
+                    <!-- Seleção de Cultura -->
+                    <div class="form-group">
+                        <label for="culturaSelect">
+                            <span class="label-icon">🥬</span>
+                            Cultura
+                        </label>
+                        <select id="culturaSelect" class="form-control">
+                            <option value="">Selecione uma cultura...</option>
+                        </select>
+                    </div>
+
+                    <!-- Número de Plantas -->
+                    <div class="form-group">
+                        <label for="numPlantas">
+                            <span class="label-icon">🌿</span>
+                            Número de Plantas
+                        </label>
+                        <input type="number" id="numPlantas" class="form-control" min="1" placeholder="Ex: 100">
+                    </div>
+                </div>
+
+                <!-- Seleção de Nutrientes (Checkboxes) -->
+                <div class="nutrientes-section">
+                    <h3 class="section-title">⚗️ Selecione os Nutrientes a Calcular</h3>
+                    <div class="checkboxes-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="checkbox_N" value="N">
+                            <span>Nitrogênio (N)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="checkbox_P2O5" value="P2O5">
+                            <span>Fósforo (P₂O₅)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="checkbox_K2O" value="K2O">
+                            <span>Potássio (K₂O)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Campos para cada Nutriente -->
+                <div id="nutrientesContainer">
+                    <!-- Nitrogênio (N) -->
+                    <div id="container_N" class="nutriente-container hidden">
+                        <h4 class="nutriente-title">🌿 Nitrogênio (N)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tipo_N">
+                                    <span class="label-icon">📦</span>
+                                    Tipo de Produto
+                                </label>
+                                <select id="tipo_N" class="form-control" onchange="handleTipoProdutoChange('N')">
+                                    <option value="">Selecione o tipo...</option>
+                                    <option value="simples">Produto Simples (% do nutriente)</option>
+                                    <option value="npk">Formulação NPK (ex: 04-14-08)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="inputSimples_N" class="form-group hidden">
+                            <label for="percentual_N">
+                                <span class="label-icon">%</span>
+                                Porcentagem de N no Produto
+                            </label>
+                            <input type="number" id="percentual_N" class="form-control" min="0.1" max="100" step="0.1" placeholder="Ex: 45.5" oninput="validateForm()">
+                            <small class="form-hint">Digite a porcentagem de N presente no produto comercial</small>
+                        </div>
+                        <div id="inputNPK_N" class="form-group hidden">
+                            <label for="npk_N">
+                                <span class="label-icon">🧪</span>
+                                Formulação NPK
+                            </label>
+                            <input type="text" id="npk_N" class="form-control" placeholder="Ex: 04-14-08" pattern="\d{1,2}-\d{1,2}-\d{1,2}" oninput="validateForm()">
+                            <small class="form-hint">Formato: N-P₂O₅-K₂O (ex: 04-14-08). O primeiro número será usado para N.</small>
+                        </div>
+                    </div>
+
+                    <!-- Fósforo (P₂O₅) -->
+                    <div id="container_P2O5" class="nutriente-container hidden">
+                        <h4 class="nutriente-title">🌿 Fósforo (P₂O₅)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tipo_P2O5">
+                                    <span class="label-icon">📦</span>
+                                    Tipo de Produto
+                                </label>
+                                <select id="tipo_P2O5" class="form-control" onchange="handleTipoProdutoChange('P2O5')">
+                                    <option value="">Selecione o tipo...</option>
+                                    <option value="simples">Produto Simples (% do nutriente)</option>
+                                    <option value="npk">Formulação NPK (ex: 04-14-08)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="inputSimples_P2O5" class="form-group hidden">
+                            <label for="percentual_P2O5">
+                                <span class="label-icon">%</span>
+                                Porcentagem de P₂O₅ no Produto
+                            </label>
+                            <input type="number" id="percentual_P2O5" class="form-control" min="0.1" max="100" step="0.1" placeholder="Ex: 45.5" oninput="validateForm()">
+                            <small class="form-hint">Digite a porcentagem de P₂O₅ presente no produto comercial</small>
+                        </div>
+                        <div id="inputNPK_P2O5" class="form-group hidden">
+                            <label for="npk_P2O5">
+                                <span class="label-icon">🧪</span>
+                                Formulação NPK
+                            </label>
+                            <input type="text" id="npk_P2O5" class="form-control" placeholder="Ex: 04-14-08" pattern="\d{1,2}-\d{1,2}-\d{1,2}" oninput="validateForm()">
+                            <small class="form-hint">Formato: N-P₂O₅-K₂O (ex: 04-14-08). O segundo número será usado para P₂O₅.</small>
+                        </div>
+                    </div>
+
+                    <!-- Potássio (K₂O) -->
+                    <div id="container_K2O" class="nutriente-container hidden">
+                        <h4 class="nutriente-title">🌿 Potássio (K₂O)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tipo_K2O">
+                                    <span class="label-icon">📦</span>
+                                    Tipo de Produto
+                                </label>
+                                <select id="tipo_K2O" class="form-control" onchange="handleTipoProdutoChange('K2O')">
+                                    <option value="">Selecione o tipo...</option>
+                                    <option value="simples">Produto Simples (% do nutriente)</option>
+                                    <option value="npk">Formulação NPK (ex: 04-14-08)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="inputSimples_K2O" class="form-group hidden">
+                            <label for="percentual_K2O">
+                                <span class="label-icon">%</span>
+                                Porcentagem de K₂O no Produto
+                            </label>
+                            <input type="number" id="percentual_K2O" class="form-control" min="0.1" max="100" step="0.1" placeholder="Ex: 45.5" oninput="validateForm()">
+                            <small class="form-hint">Digite a porcentagem de K₂O presente no produto comercial</small>
+                        </div>
+                        <div id="inputNPK_K2O" class="form-group hidden">
+                            <label for="npk_K2O">
+                                <span class="label-icon">🧪</span>
+                                Formulação NPK
+                            </label>
+                            <input type="text" id="npk_K2O" class="form-control" placeholder="Ex: 04-14-08" pattern="\d{1,2}-\d{1,2}-\d{1,2}" oninput="validateForm()">
+                            <small class="form-hint">Formato: N-P₂O₅-K₂O (ex: 04-14-08). O terceiro número será usado para K₂O.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Calcular -->
+                <button type="button" id="calcularBtn" class="btn-calculate">
+                    <span>🧮</span> Calcular
+                </button>
+            </div>
+
+            <!-- Card de Resultado -->
+            <div id="resultCard" class="card result-card hidden">
+                <h2 class="card-title">📊 Resultado do Cálculo</h2>
+                
+                <div class="result-summary">
+                    <div class="result-item">
+                        <span class="result-label">Cultura:</span>
+                        <span id="resultCultura" class="result-value"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Número de Plantas:</span>
+                        <span id="resultPlantas" class="result-value"></span>
+                    </div>
+                </div>
+
+                <!-- Aba expansível para cálculos detalhados -->
+                <div class="calculation-accordion">
+                    <button class="accordion-toggle" onclick="toggleCalculationDetails()">
+                        <span>📐 Ver Cálculo Detalhado (Conversão Agronômica)</span>
+                        <span class="accordion-icon" id="accordionIcon">▼</span>
+                    </button>
+                    <div id="calculationDetails" class="accordion-content hidden">
+                        <div id="calculationSteps" class="calculation-steps"></div>
+                    </div>
+                </div>
+
+                <div class="final-result">
+                    <h3 style="margin-bottom: 16px; color: var(--white);">📦 Quantidade de Produto Comercial Necessária:</h3>
+                    <div id="finalResultsContainer" class="final-results-container"></div>
+                </div>
+            </div>
+
+            </div>
+
+            <!-- Aba Tratos Culturais -->
+            <div id="tab-tratos" class="tab-content hidden">
+                <div class="card tratos-card">
+                    <h2 class="card-title">📚 Tratos Culturais e Informações das Culturas</h2>
+                    
+                    <div class="tratos-search">
+                        <input type="text" id="tratosSearch" class="form-control" placeholder="🔍 Buscar cultura..." oninput="searchTratos()">
+                    </div>
+
+                    <div id="tratosList" class="tratos-list">
+                        <!-- Lista de culturas será gerada dinamicamente -->
+                    </div>
+
+                    <div id="tratosDetails" class="tratos-details hidden">
+                        <button class="btn-back" onclick="hideTratosDetails()">← Voltar</button>
+                        <div id="tratosContent"></div>
+                    </div>
+
+                    <div class="pdf-viewer-section">
+                        <h3>📖 Manual Completo</h3>
+                        <p>Para informações detalhadas sobre todas as culturas, consulte o manual completo:</p>
+                        <div id="pdfContainer">
+                            <p class="pdf-placeholder">PDF será carregado aqui quando disponível</p>
+                            <!-- O PDF será carregado aqui via iframe ou embed -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Ajuda (Como Usar) -->
+            <div id="tab-ajuda" class="tab-content hidden">
+            <!-- Card Informativo -->
+            <div class="card info-card">
+                <h2 class="card-title">ℹ️ Como Encontrar a Informação na Embalagem</h2>
+                
+                <!-- Seção Produto Simples -->
+                <div class="info-section">
+                    <h3 class="info-section-title">📦 Produto Simples (% do Nutriente)</h3>
+                    <div class="info-section-content">
+                        <div class="info-text-left">
+                            <p><strong>Onde encontrar:</strong></p>
+                            <p>A porcentagem do nutriente aparece em um <strong>quadradinho no verso da embalagem</strong> (parte de trás do saco).</p>
+                            <p><strong>Exemplo:</strong> Procure por "45% de N" ou "20% de P₂O₅" dentro de um quadrado ou tabela nutricional.</p>
+                        </div>
+                        <div class="info-visual">
+                            <div class="embalagem-image-container">
+                                <img src="adubo simples.png" alt="Exemplo de embalagem produto simples - verso com quadradinho" class="embalagem-example-image">
+                                <div class="seta-indicativa">← Procure aqui (verso da embalagem)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção NPK -->
+                <div class="info-section">
+                    <h3 class="info-section-title">🧪 Formulação NPK</h3>
+                    <div class="info-section-content">
+                        <div class="info-text-left">
+                            <p><strong>Onde encontrar:</strong></p>
+                            <p>A formulação NPK aparece <strong>na frente da embalagem</strong>, geralmente em destaque.</p>
+                            <p><strong>Formato:</strong> Três números separados por hífen, como "04-14-08".</p>
+                            <p><strong>O que significa:</strong></p>
+                            <ul>
+                                <li><strong>Primeiro número:</strong> Porcentagem de Nitrogênio (N)</li>
+                                <li><strong>Segundo número:</strong> Porcentagem de Fósforo (P₂O₅)</li>
+                                <li><strong>Terceiro número:</strong> Porcentagem de Potássio (K₂O)</li>
+                            </ul>
+                        </div>
+                        <div class="info-visual">
+                            <div class="embalagem-image-container">
+                                <img src="formuladonpk.png" alt="Exemplo de embalagem NPK - frente com formulação" class="embalagem-example-image">
+                                <div class="seta-indicativa">← Procure aqui (frente da embalagem)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>© 2024 Calculadora de Adubação NPK | Desenvolvido para profissionais da agricultura</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
